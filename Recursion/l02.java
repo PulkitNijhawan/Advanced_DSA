@@ -310,52 +310,7 @@ public class l02 {
     count += equiSet(arr, idx + 1, set1, set2 + arr[idx], set1S, set2S + " " + arr[idx]);
 
     return count;
-    class Solution {
-public:
-    vector<int> row;
-    vector<int> col;
-    vector<vector<int>> mat;
-    bool solve(vector<vector<char>>& board,vector<int>&calls,int idx){
-        if(idx==calls.size())return true;
-        bool res=false;
-        int r=calls[idx]/9;
-        int c=calls[idx]%9;
-        for(int i=1;i<=9;i++){
-            int mask=1<<i;
-            if((row[r]&mask)==0&&(col[c]&mask)==0&&(mat[r/3][c/3]&mask)==0){
-                board[r][c]=(char)(i+'0');
-                row[r]^=mask;
-                col[c]^=mask;
-                mat[r/3][c/3]^=mask;
-                res=res||solve(board,calls,idx+1);
-                if(res==true)return res;
-                board[r][c]='.';
-                row[r]^=mask;
-                col[c]^=mask;
-                mat[r/3][c/3]^=mask;
-            }
-        }
-        return res;
-    }
-    void solveSudoku(vector<vector<char>>& board) {
-        row.assign(9,0);
-        col.assign(9,0);
-        mat.assign(3,vector<int>(3,0));
-        vector<int> calls;
-        for(int i=0;i<board.size();i++){
-            for(int j=0;j<board.size();j++){
-                if(board[i][j]=='.')calls.push_back((i*9)+j);
-                else{
-                    int num=board[i][j]-'0';
-                    int mask=1<<num;
-                    row[i]^=mask;
-                    col[j]^=mask;
-                    mat[i/3][j/3]^=mask;
-                }
-            }
-        }
-        solve(board,calls,0);
-    }
-};
+    
+
 }
 }
