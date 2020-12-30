@@ -203,6 +203,50 @@ public class basic {
         return max(l, r) + 1;
     }
 
+    public static List<List<Integer>> pathSum2(Node root, int sum) {
+        if (root == null)
+            return new ArrayList<>();
+        if (root.right == null && root.left == null && root.data == sum) {
+            List<List<Integer>> baseRes = new ArrayList<>();
+            baseRes.add(new ArrayList<Integer>());
+            baseRes.get(0).add(root.data);
+            return baseRes;
+        }
+        List<List<Integer>> myAns = new ArrayList<>();
+        List<List<Integer>> leftAns = pathSum2(root.left, sum - root.data);
+        if (leftAns.size() != 0) {
+            for (List<Integer> x : leftAns) {
+                x.add(0, root.data);
+                myAns.add(x);
+            }
+        }
+        List<List<Integer>> rightAns = pathSum2(root.right, sum - root.data);
+        if (rightAns.size() != 0) {
+            for (List<Integer> x : rightAns) {
+                x.add(0, root.data);
+                myAns.add(x);
+            }
+        }
+        return myAns;
+    }
+
+    static int l2lMax = (int) -1e8;
+
+    public static int leaf2leaf(Node root) {
+        if (root == null)
+            return (int) (-1e8 - 1);
+        if (root.left == null && root.right == null)
+            return root.data;
+        int leftAns = leaf2leaf(root.left);
+        int rightAns = leaf2leaf(root.right);
+        // rightAns=rightAns==(int)(-1e8-1)?0:rightAns;
+        if (root.left!=null&&root.right!=null)
+            l2lMax = max(l2lMax, leftAns + rightAns + root.data);
+        return max(leftAns, rightAns) + root.data;
+
+    }
+    
+
     public static void main(String[] args) {
         int[] arr = { 10, 20, 40, -1, -1, 50, -1, -1, 30, 60, 100, -1, -1, -1, 70, 110, -1, -1, 120, -1, -1 };
         Node root = constructTree(arr);
@@ -217,7 +261,9 @@ public class basic {
         // System.out.println(kfar02(root, 60, 3,ans));
         // System.out.println(ans);
 
-        diameter02(root);
-        System.out.println(diameter);
+        // diameter02(root);
+        // System.out.println(diameter);
+        leaf2leaf(root);
+        System.out.println(l2lMax);
     }
 }
