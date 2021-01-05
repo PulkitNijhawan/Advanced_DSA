@@ -194,6 +194,94 @@ public class bfs {
             System.out.println(x);
         }
     }
+    public static void bottomView(Node root){
+        width(root, 0);
+        int[] ans = new int[rightMaxValue - leftMinValue + 1];
+        
+        LinkedList<pairVO> que=new LinkedList<>();
+        que.addLast(new pairVO(root, -leftMinValue));
+        while(!que.isEmpty()){
+            int size = que.size();
+            while (size-- > 0) {
+                pairVO rVO = que.removeFirst();
+                ans[rVO.level]=rVO.node.data;
+                if (rVO.node.left != null)
+                    que.addLast(new pairVO(rVO.node.left, rVO.level - 1));
+                if (rVO.node.right != null)
+                    que.addLast(new pairVO(rVO.node.right, rVO.level + 1));
+
+            }
+        }
+        for(int x:ans)System.out.print(x+" ");
+    }
+    public static void topView(Node root){
+        width(root, 0);
+        int[] ans = new int[rightMaxValue - leftMinValue + 1];
+        Arrays.fill(ans,-1);
+        LinkedList<pairVO> que=new LinkedList<>();
+        que.addLast(new pairVO(root, -leftMinValue));
+        while(!que.isEmpty()){
+            int size = que.size();
+            while (size-- > 0) {
+                pairVO rVO = que.removeFirst();
+                if(ans[rVO.level]!=-1)break;
+                ans[rVO.level]=rVO.node.data;
+                if (rVO.node.left != null)
+                    que.addLast(new pairVO(rVO.node.left, rVO.level - 1));
+                if (rVO.node.right != null)
+                    que.addLast(new pairVO(rVO.node.right, rVO.level + 1));
+
+            }
+        }
+        for(int x:ans)System.out.print(x+" ");
+    }
+    public static void diagonalView(Node root){
+        width(root, 0);
+        ArrayList<Integer>[] ans = new ArrayList[ - leftMinValue + 1];
+        for (int p = 0; p < ans.length; p++)
+            ans[p] = new ArrayList<>();
+        LinkedList<pairVO> que=new LinkedList<>();
+        que.addLast(new pairVO(root, -leftMinValue));
+        while (!que.isEmpty()) {
+            int size = que.size();
+            while (size-- > 0) {
+                pairVO rVO = que.removeFirst();
+                ans[rVO.level].add(rVO.node.data);
+                if (rVO.node.left != null)
+                    que.addLast(new pairVO(rVO.node.left, rVO.level - 1));
+                if (rVO.node.right != null)
+                    que.addLast(new pairVO(rVO.node.right, rVO.level));
+
+            }
+
+        }
+        int i = 0;
+        for (ArrayList<Integer> x : ans) {
+            System.out.print("Level: " + i++ + "-> ");
+            System.out.println(x);
+        }
+
+    }
+    public static Node linearize(Node root){
+        if(root==null)return null;
+        if(root.left==null&&root.right==null){
+            return root;
+        }
+        Node left=linearize(root.left);
+        Node right=linearize(root.right);
+        Node rNode=left;
+        if(root.right!=null&&root.left!=null){
+            left.left=root.right;
+            root.right=null;
+            rNode=right;
+        }
+        if(root.left==null){
+            root.left=root.right;
+            root.right=null;
+            rNode=right;
+        }
+        return rNode;
+    }
 
     public static void main(String[] args) {
         int[] arr = { 10, 20, 40, -1, -1, 50, -1, -1, 30, 60, 100, -1, -1, -1, 70, 110, -1, -1, 120, -1, -1 };
@@ -201,6 +289,7 @@ public class bfs {
         // levelOrder(root);
         // bfs03(root);
         // rightView(root);
-        verticalOrder(root);
+        // verticalOrder(root);
+        diagonalView(root);
     }
 }
