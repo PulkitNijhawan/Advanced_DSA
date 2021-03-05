@@ -14,7 +14,7 @@ void print(vector<int> &dp)
 }
 void print2d(vector<vector<int>> &dp)
 {
-    for (vector<int> &arr : dp)
+    for (vector<int> arr : dp)
         print(arr);
     cout << "\n";
 }
@@ -575,6 +575,82 @@ int distinctSubseq(string &s, string &t, int n, int m, vvi &dp)
     }
     return dp[n][m] = tendency;
 }
+int countPalindromicSubseq(string &str, int i, int j, vvi &dp)
+{
+    if (i > j)
+        return dp[i][j] = 0;
+    if (i == j)
+        return dp[i][j] = 1;
+    if (dp[i][j] != -1)
+        return dp[i][j];
+    int x = countPalindromicSubseq(str, i + 1, j - 1, dp);
+    int y = countPalindromicSubseq(str, i, j - 1, dp);
+    int z = countPalindromicSubseq(str, i + 1, j, dp);
+    int tendency = 0;
+    if (str[i] == str[j])
+        tendency += y + z + 1;
+    else
+        tendency += y + z - x;
+    return dp[i][j] = tendency;
+}
+int longestCommonSubseq(string &s, string &t, int n, int m, vector<vector<int>> &dp)
+{
+    if (n == 0 || m == 0)
+        return 0;
+    if (dp[n][m] != -1)
+        return dp[n][m];
+    int tendency = -1;
+    if (s[n - 1] == t[m - 1])
+        tendency = longestCommonSubseq(s, t, n - 1, m - 1, dp) + 1;
+    else
+    {
+        tendency = max(tendency, longestCommonSubseq(s, t, n - 1, m, dp));
+        tendency = max(tendency, longestCommonSubseq(s, t, n, m - 1, dp));
+    }
+    return dp[n][m] = tendency;
+}
+int longestCommonSubseqDp(string &s, string &t, int N, int M, vector<vector<int>> &dp)
+{
+    for (int n = 0; n <= N; n++)
+    {
+        for (int m = 0; m <= M; m++)
+        {
+            if (n == 0 || m == 0)
+            {
+                dp[n][m] = 0;
+                continue;
+            }
+            int tendency = -1;
+            if (s[n - 1] == t[m - 1])
+                tendency = dp[n - 1][m - 1] + 1;
+            else
+            {
+                tendency = max(tendency, dp[n - 1][m]);
+                tendency = max(tendency, dp[n][m - 1]);
+            }
+            dp[n][m] = tendency;
+        }
+    }
+    return dp[N][M];
+}
+int editDistance(string &s, string &t, int n, int m, vvi &dp)
+{
+    if (n == 0 || m == 0)
+        return dp[n][m] = max(n, m);
+    if (dp[n][m] != -1)
+        return dp[n][m];
+    int tendency = 1e8;
+    if (s[n - 1] == t[m - 1])
+        tendency = editDistance(s, t, n - 1, m - 1, dp);
+    else
+    {
+        tendency = min(tendency, editDistance(s, t, n, m - 1, dp));
+        tendency = min(tendency, editDistance(s, t, n - 1, m, dp));
+        tendency = min(tendency, editDistance(s, t, n - 1, m - 1, dp));
+        tendency++;
+    }
+    return dp[n][m] = tendency;
+}
 void palindromics()
 {
     // string str = "abcbddbcaab";
@@ -590,8 +666,8 @@ void palindromics()
     // print2d(dp);
     string s = "rabbbit", t = "rabbit";
     int n = s.length(), m = t.length();
-    vvi dp(n, vi(m, -1));
-    cout << distinctSubseq(s, t, n - 1, m - 1, dp) << "\n";
+    vvi dp(n + 1, vi(m + 1, -1));
+    cout << distinctSubseq(s, t, n, m, dp) << "\n";
     print2d(dp);
 }
 
@@ -599,12 +675,215 @@ void stringSet()
 {
     palindromics();
 }
+//===========================================================Target Set====================================================================
+int coinChangePermute(int target, vi &arr, vi &dp)
+{
+    if (target == 0)
+    {
+        return dp[target] = 1;
+    }
+    if (dp[target] != -1)
+        return dp[target];
+    int tendency = 0;
+    for (int ele : arr)
+    {
+        if (target - ele >= 0)
+            tendency += coinChangePermute(target - ele, arr, dp);
+    }
+    return dp[target] = tendency;
+}
+int coinChangePermuteDp(int T, vi &arr, vi &dp)
+{
+    for (int target = 0; target <= T; target++)
+    {
+        if (target == 0)
+        {
+            dp[target] = 1;
+            continue;
+        }
+        int tendency = 0;
+        for (int ele : arr)
+        {
+            if (target - ele >= 0)
+                tendency += dp[target - ele];
+        }
+        dp[target] = tendency;
+    }
+    return dp[T];
+}
+int coinChangeCombiDp(int T, vi &arr, vi &dp)
+{
+    dp[0] = 1;
+    for (int i = 0; i < arr.size(); i++)
+    {
+        int ele = arr[i];
+        for (int target = ele; target <= T; target++)
+        {
+            dp[target] += dp[target - ele];
+        }
+    }
+    return dp[T];
+}
 
+//Leetcode 322 TRY
+int coinChangeLC(int tar, vi &arr, vi &dp)
+{
+    if (tar == 0)
+    {
+        return dp[tar] = 0;
+    }
+    if (dp[tar] != -1)
+        return dp[tar];
+    int tendency = 1e9;
+    for (int ele : arr)
+    {
+        if (tar - ele >= 0)
+        {
+            int val = coinChangeLC(tar - ele, arr, dp);
+            if (val != 1e9 && val + 1 < tendency)
+                tendency = val + 1;
+        }
+    }
+    return dp[tar] = tendency == -1 ? -1 : tendency + 1;
+}
+int coinChangeCombiLim(int tar, vi &arr, vvi &dp, int n)
+{
+    if (tar == 0 || n == 0)
+    {
+        return dp[n][tar] = tar == 0 ? 1 : 0;
+    }
+    if (dp[n][tar] != -1)
+        return dp[n][tar];
+    int tendency = 0;
+    if (tar - arr[n - 1] >= 0)
+        tendency += coinChangeCombiLim(tar - arr[n - 1], arr, dp, n - 1);
+    tendency += coinChangeCombiLim(tar, arr, dp, n - 1);
+    return dp[n][tar] = tendency;
+}
+int knapsack01(int tar, vi &w, vi &c, vvi &dp, int idx)
+{
+    if (idx == w.size() || tar == 0)
+    {
+        return dp[idx][tar] = 0;
+    }
+    if (dp[idx][tar] != -1)
+        return dp[idx][tar];
+    int tendency = 0;
+    if (tar - w[idx + 1] >= 0)
+        tendency = knapsack01(tar - w[idx + 1], w, c, dp, idx + 1) + c[idx];
+    tendency = max(tendency, knapsack01(tar, w, c, dp, idx + 1));
+    return dp[idx][tar] = tendency;
+}
+int coinChangeCombiLimPath(vi &arr, int tar, int n, vvi &dp, string path)
+{
+    if (tar == 0 || n == 0)
+    {
+        if (tar == 0)
+        {
+            cout << path << "\n";
+            return 1;
+        }
+        return 0;
+    }
+    int tendency = 0;
+    if (tar - arr[n - 1] >= 0 && dp[n - 1][tar - arr[n - 1]] > 0)
+        tendency += coinChangeCombiLimPath(arr, tar - arr[n - 1], n - 1, dp, path + to_string(arr[n - 1]) + " ");
+    if (dp[n - 1][tar] > 0)
+        tendency += coinChangeCombiLimPath(arr, tar, n - 1, dp, path + " ");
+    return tendency;
+}
+void equiset()
+{
+    vi arr{1, 5, 11, 5};
+    int sum = 0;
+    for (int ele : arr)
+        sum += ele;
+    int tar = sum / 2;
+    if (tar % 2 != 0)
+    {
+        cout << false << "\n";
+        return;
+    }
+    vvi dp(arr.size() + 1, vi(tar + 1, -1));
+    coinChangeCombiLim(tar, arr, dp, 0);
+}
+int unboundedKnapsack(int tar, vi &w, vi &c, vi &dp)
+{
+    dp[0] = 0;
+    int costIdx = 0;
+    for (int ele : w)
+    {
+        for (int i = ele; i <= tar; i++)
+        {
+            dp[i] = max(dp[i], dp[i - ele] + c[costIdx]);
+        }
+        costIdx++;
+    }
+    return dp[tar];
+}
+int solution4Equations(vi &coeff, int tar, vi &dp)
+{
+    dp[0] = 1;
+    for (int ele : coeff)
+    {
+        for (int i = ele; i <= tar; i++)
+        {
+            dp[i] += dp[i - ele];
+        }
+    }
+    return dp[tar];
+}
+int targetSumLC(vi &arr, int tar, int n, int sum, vvi &dp)
+{
+    if (n == 0)
+    {
+        return dp[n][sum] = tar == sum ? 1 : 0;
+    }
+    if (dp[n][sum] != -1)
+        return dp[n][sum];
+    int tendency = 0;
+    tendency += targetSumLC(arr, tar, n - 1, sum + arr[n - 1], dp);
+    tendency += targetSumLC(arr, tar, n - 1, sum - arr[n - 1], dp);
+    return dp[n][sum] = tendency;
+}
+void targetSet()
+{
+    int tar = 3;
+    // vi arr{2, 3, 5, 7};
+    // vi dp(target + 1, -1);
+    // cout << coinChangePermute(target, arr, dp) << "\n";
+    // print(dp);
+    // int tar = 5;
+    // vi w{1,2,3};
+    // vi c{60, 100, 120};
+    // vvi dp(tar + 1, vi(w.size() + 1, -1));
+    // cout << coinChangeCombiLim(tar, arr, dp, arr.size()) << "\n";
+    // cout << knapsack01(tar, w, c, dp, 0) << "\n";
+    // print2d(dp);
+    // vi w{1, 3, 4, 5};
+    // vi c{10, 40, 50, 70};
+    // vi dp(tar + 1, -1);
+    // cout << unboundedKnapsack(tar, w, c, dp) << "\n";
+    // vi coeff{1, 2};
+    // vi dp(tar + 1, 0);
+    // cout << solution4Equations(coeff, tar, dp) << "\n";
+    // print(dp);
+    vi arr{1, 1, 1, 1, 1};
+    int sum = 0;
+    for (int ele : arr)
+        sum += ele;
+    vvi dp(arr.size() + 1, vi(2 * sum + 1, -1));
+    if (sum < tar || sum < -tar)
+        cout << -1;
+    cout << targetSumLC(arr, tar + sum, arr.size(), sum, dp) << "\n";
+    print2d(dp);
+}
 void solve()
 {
     // g++ l01.cpp -o p && ./p > output.txt
     // twoPointer();
-    stringSet();
+    // stringSet();
+    targetSet();
 }
 int main()
 {
