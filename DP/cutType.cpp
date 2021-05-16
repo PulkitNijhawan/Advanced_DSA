@@ -1,6 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <list>
+#include <bits/stdc++.h>
 using namespace std;
 #define mod 1000000007
 typedef long long int lli;
@@ -26,15 +24,15 @@ void print2d(vector<vector<T>> &dp)
 
 int matrixChainMulti(vi &arr, int si, int ei, vvi &dp)
 {
-    if (si + 1 == ei)
+    if (si == ei)
         return dp[si][ei] = 0;
     if (dp[si][ei] != -1)
         return dp[si][ei];
     int tendency = (int)1e5;
-    for (int cut = si + 1; cut < ei; cut++)
+    for (int cut = si; cut <= ei; cut++)
     {
         int leftTree = matrixChainMulti(arr, si, cut, dp);
-        int rightTree = matrixChainMulti(arr, cut, ei, dp);
+        int rightTree = matrixChainMulti(arr, cut + 1, ei, dp);
         int costOfMultiply = leftTree + rightTree + (arr[cut] * arr[si] * arr[ei]);
         tendency = min(tendency, costOfMultiply);
     }
@@ -158,7 +156,7 @@ int optimalBST(vi &arr, vi &freq, int si, int ei, vi &prefixOBST, vvi &dp)
     }
     return dp[si][ei] = tendency;
 }
-int OBST_Dp(vi &arr, vi &freq,int SI,int EI, vi &prefixOBST, vvi &dp)
+int OBST_Dp(vi &arr, vi &freq, int SI, int EI, vi &prefixOBST, vvi &dp)
 {
     int n = arr.size();
     for (int gap = 0; gap < n; gap++)
@@ -168,14 +166,38 @@ int OBST_Dp(vi &arr, vi &freq,int SI,int EI, vi &prefixOBST, vvi &dp)
             int tendency = 1e8;
             for (int cut = si; cut <= ei; cut++)
             {
-                int leftTree = cut == si ? 0 : dp[si][cut-1];
-                int rightTree = cut == ei ? 0 : dp[cut+1][ei];
+                int leftTree = cut == si ? 0 : dp[si][cut - 1];
+                int rightTree = cut == ei ? 0 : dp[cut + 1][ei];
                 tendency = min(tendency, leftTree + (prefixOBST[ei] - (si == 0 ? 0 : prefixOBST[si - 1])) + rightTree);
             }
             dp[si][ei] = tendency;
         }
     }
     return dp[SI][EI];
+}
+int minPolygon(vi &arr, int si, int ei, vvi &dp)
+{
+
+    if (ei - si < 2)
+        return 0;
+    if (dp[si][ei] != -1)
+        return dp[si][ei];
+    int tendency = 1e8;
+    for (int cut = si + 1; cut < ei; cut++)
+    {
+        int leftShape = minPolygon(arr, si, cut, dp);
+        int rightShape = minPolygon(arr, cut, ei, dp);
+        tendency = min(tendency, leftShape + (arr[si] * arr[cut] * arr[ei]) + rightShape);
+    }
+    return dp[si][ei] = tendency;
+}
+void POLYGON()
+{ //Leetcode: 1039
+    vi arr{3, 7, 4, 5};
+    int si = 0, ei = arr.size() - 1;
+    vvi dp(ei + 1, vi(ei + 1, -1));
+    cout << minPolygon(arr, si, ei, dp) << "\n";
+    print2d(dp);
 }
 void OBST()
 {
@@ -218,16 +240,17 @@ void MCM()
     vi arr{4, 2, 3, 1, 3};
     int si = 0, ei = arr.size() - 1;
     vvi dp(ei + 1, vi(ei + 1, 0));
-    cout << matrixChainMultiPath(arr, si, ei, dp) << "\n";
-    // print2d(dp);
+    cout << matrixChainMulti(arr, si, ei, dp) << "\n";
+    print2d(dp);
 }
 void solve()
 {
     // g++ cutType.cpp -o p&&./p > output.txt
-    // MCM();
+    MCM();
     // MINMAX();
     //BB();
-    OBST();
+    // OBST();
+    // POLYGON();
 }
 int main()
 {

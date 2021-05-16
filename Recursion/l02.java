@@ -6,7 +6,8 @@ public class l02 {
     }
 
     public static void solve() {
-        // int[] arr = { 2, 3, 5, 7 };
+        int[] arr = { 2, 3, 5, 7 };
+        System.out.println(permuInfi(arr, 10, " "));
         // // boolean[] visited=new boolean[arr.length];
         // int[][] board = new int[6][6];
         // for (int i = 0; i < board.length; i++) {
@@ -21,8 +22,8 @@ public class l02 {
         // col=new boolean[4];
         // diag=new boolean[7];
         // adiag=new boolean[7];
-        int[] arr = {10, 20, 30, 40, 50, 60, 70, 80};
-        System.out.println(equiSet(arr, 1, 10, 0, "10", ""));
+        // int[] arr = {10, 20, 30, 40, 50, 60, 70, 80};
+        // System.out.println(equiSet(arr, 1, 10, 0, "10", ""));
         // System.out.println(queen03(4,4, 4, 0, ""));
     }
 

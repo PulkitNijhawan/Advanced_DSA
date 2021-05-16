@@ -139,15 +139,142 @@ void btwAnB01(Node *root, int a, int b, vector<Node *> &ans)
         return;
     btwAnB01(root->right, a, b, ans);
 }
-void btwAnB02(Node *root, int a, int b, vector<Node *> &ans){
-    if(root==nullptr)return;
-    if(root->data>b)btwAnB02(root->left, a, b, ans);
-    else if(root->data<a)btwAnB02(root->right, a, b, ans);
-    else{
+void btwAnB02(Node *root, int a, int b, vector<Node *> &ans)
+{
+    if (root == nullptr)
+        return;
+    if (root->data > b)
+        btwAnB02(root->left, a, b, ans);
+    else if (root->data < a)
+        btwAnB02(root->right, a, b, ans);
+    else
+    {
         btwAnB02(root->left, a, b, ans);
         ans.push_back(root);
         btwAnB02(root->right, a, b, ans);
     }
+}
+class allSol
+{
+public:
+    int height;
+    int size;
+    bool find;
+    Node *prev;
+    Node *pred;
+    Node *succ;
+    int ceil = (int)1e8;
+    int floor = (int)-1e8;
+    allSol()
+    {
+        this->height = -1;
+        this->size = 0;
+        this->find = false;
+        this->prev = nullptr;
+        this->pred = nullptr;
+        this->succ = nullptr;
+    }
+};
+allSol *allAns = new allSol();
+void allSol_(Node *root, int k, int level)
+{
+    if (root == nullptr)
+        return;
+    allAns->size++;
+    allAns->height = max(allAns->height, level);
+    if (allAns->ceil > root->data && root->data > k)
+        allAns->ceil = root->data;
+    if (allAns->floor < root->data && root->data < k)
+        allAns->floor = root->data;
+    allAns->find = allAns->find || k == root->data;
+    allSol_(root->left, k, level + 1);
+    if (allAns->pred != nullptr && allAns->succ == nullptr)
+        allAns->succ = root;
+    if (allAns->find)
+        allAns->pred = allAns->prev;
+    allAns->prev = root;
+    allSol_(root->right, k, level + 1);
+}
+Node *addData(Node *root, int d)
+{
+    if (root == nullptr)
+    {
+
+        return new Node(d);
+    }
+    if (root->data > d)
+        root->left = addData(root->left, d);
+    else
+        root->right = addData(root->right, d);
+    return root;
+}
+Node *deleteData(Node *root, int d)
+{
+    if (root == nullptr)
+        return root;
+    if (root->data == d)
+    {
+        if (root->left == nullptr || root->right == nullptr)
+        {
+            Node *temp = nullptr;
+            if (root->right == nullptr)
+                temp = root->left;
+            else
+                temp = root->right;
+            delete root;
+            return temp;
+        }
+        else
+        {
+            Node *curr = root->left;
+            while (curr->right != nullptr)
+                curr = curr->right;
+            swap(root->data, curr->data);
+            root->left = deleteData(curr, root->data);
+            return root;
+        }
+    }
+    if (root->data > d)
+        root->left = addData(root->left, d);
+    else
+        root->right = addData(root->right, d);
+    return root;
+}
+pair<Node*,Node*> allSolBst(Node*root,int k){
+    Node*curr=root;pair<Node*,Node*> ans;Node*pred=nullptr;Node*succ=nullptr;
+    while(curr!=nullptr){
+        if(curr->data==k){
+            if(curr->left!=nullptr){
+                pred=curr->left;
+                while(pred->right!=nullptr)pred=pred->right;
+            }
+            if(curr->right!=nullptr){
+                succ=curr->right;
+                while(succ->left!=nullptr)succ=succ->left;
+            }
+            ans.first=pred;ans.second=succ;
+        }
+        else if(curr->data<k){
+            pred=curr;
+            curr=curr->right;
+        }
+        else {
+            succ=curr;
+            curr=curr->left;
+        }
+    }
+    return ans;
+}
+int idx=-1;
+Node* bstFromPre(vector<int>&arr,int lr,int rr){
+    idx++;
+    if(idx==arr.size())return nullptr;
+    if(idx>=arr.size()||arr[idx]>rr||arr[idx]<lr)return nullptr;
+    int ele=arr[idx++];
+    Node* node=new Node(ele);
+    node->left=bstFromPre(arr,lr,ele);
+    node->right=bstFromPre(arr,ele,rr);
+    return node;
 }
 int main()
 {

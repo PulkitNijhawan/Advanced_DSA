@@ -149,6 +149,7 @@ public class basic {
             return;
         if (level == 0) {
             ans.add(rt);
+            return;
         }
         kDown(rt.left, level - 1, blockNode, ans);
         kDown(rt.right, level - 1, blockNode, ans);
@@ -240,12 +241,60 @@ public class basic {
         int leftAns = leaf2leaf(root.left);
         int rightAns = leaf2leaf(root.right);
         // rightAns=rightAns==(int)(-1e8-1)?0:rightAns;
-        if (root.left!=null&&root.right!=null)
+        if (root.left != null && root.right != null)
             l2lMax = max(l2lMax, leftAns + rightAns + root.data);
         return max(leftAns, rightAns) + root.data;
 
     }
-    
+
+    public static Node preInConst(int ps, int pe, int is, int ie, int[] pre, int[] in) {
+        if (ps > pe)
+            return null;
+        Node node = new Node(pre[ps]);
+        int idx = is;
+        while (in[idx] != pre[ps])
+            idx++;
+        int len = idx - is;
+        node.left = preInConst(ps + 1, pe + len, is, idx - 1, pre, in);
+        node.right = preInConst(ps + len + 1, pe, idx + 1, ie, pre, in);
+        return node;
+    }
+
+    static Node prevDll = null;
+    static Node headDll = null;
+
+    public static void tree2Dll(Node root) {
+        if (root == null)
+            return;
+        tree2Dll(root.left);
+        if (headDll == null)
+            headDll = root;
+        else {
+            prevDll.right = root;
+            root.left = prevDll;
+        }
+        prevDll = root;
+        tree2Dll(root.right);
+    }
+
+    static int postIdx = 0;
+
+    public static boolean checkTree(int ps, int pe, int is, int ie, int[] pre, int[] in, int[] post) {
+        if (ps > pe)
+            return true;
+        int node = pre[ps];
+        int idx = is;
+        while (in[idx] != pre[ps])
+            idx++;
+        int len = idx - is;
+        if (!checkTree(ps + 1, pe + len, is, idx - 1, pre, in, post))
+            return false;
+        if (!checkTree(ps + len + 1, pe, idx + 1, ie, pre, in, post))
+            return false;
+        if (post[postIdx++] != node)
+            return false;
+        return true;
+    }
 
     public static void main(String[] args) {
         int[] arr = { 10, 20, 40, -1, -1, 50, -1, -1, 30, 60, 100, -1, -1, -1, 70, 110, -1, -1, 120, -1, -1 };
